@@ -1,8 +1,8 @@
 class Company < ApplicationRecord
   belongs_to :user
 
-  has_many :periods
-  has_many :employees
+  has_many :periods, dependent: :destroy
+  has_many :employees, dependent: :destroy
 
   validates :name, presence: true
   validates :name, length: { minimum: 3, maximum: 20 }

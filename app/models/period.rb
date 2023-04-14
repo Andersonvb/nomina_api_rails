@@ -1,7 +1,7 @@
 class Period < ApplicationRecord
   belongs_to :company
 
-  has_many :payrolls
+  has_many :payrolls, dependent: :destroy
 
   validates :start_date, presence: true
   validates :end_date, presence: true

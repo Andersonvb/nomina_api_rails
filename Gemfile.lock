@@ -84,6 +84,9 @@ GEM
     io-console (0.6.0)
     irb (1.6.4)
       reline (>= 0.3.0)
+    jbuilder (2.11.5)
+      actionview (>= 5.0.0)
+      activesupport (>= 5.0.0)
     jwt (2.7.0)
     loofah (2.20.0)
       crass (~> 1.0.2)
@@ -159,9 +162,10 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  bcrypt
+  bcrypt (~> 3.1.7)
   bootsnap
   debug
+  jbuilder
   jwt
   pg (~> 1.1)
   puma (~> 5.0)

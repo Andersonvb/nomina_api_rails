@@ -1,7 +1,7 @@
 class Employee < ApplicationRecord
   belongs_to :company
 
-  has_many :payrolls
+  has_many :payrolls, dependent: :destroy
 
   validates :name, presence: true
   validates :name, length: { minimun: 3, maximum: 20 }
