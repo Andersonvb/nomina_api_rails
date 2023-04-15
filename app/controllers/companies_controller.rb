@@ -2,7 +2,7 @@ class CompaniesController < ApplicationController
   before_action :set_company, only: [:show, :update, :destroy]
 
   def index
-    @companies = Company.order(:id)
+    @companies = Company.where(user_id: @current_user.id)
   end
 
   def show; end

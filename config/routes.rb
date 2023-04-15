@@ -4,4 +4,5 @@ Rails.application.routes.draw do
   resources :employees, default: { format: :json }
   resources :periods, default: { format: :json }
   resources :payrolls, default: { format: :json }
+  post '/sessions', to: 'sessions#create'
 end

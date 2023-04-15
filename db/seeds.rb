@@ -1,1 +1,1 @@
-User.create({ name: 'Anderson', lastname: 'Valencia', username: 'andersonvb', password_digest: 'abc123' })
+User.create({ name: 'Anderson', lastname: 'Valencia', username: 'andersonvb', password: 'abc123' })
