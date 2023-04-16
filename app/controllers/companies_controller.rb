@@ -5,29 +5,39 @@ class CompaniesController < ApplicationController
     @companies = Company.where(user_id: @current_user.id)
   end
 
-  def show; end
+  def show
+    if @current_user.companies.include?(@company)
+      render :show, status: :ok
+    else
+      render json: { error: 'No company' }
+    end
+  end
 
   def create 
     @company = Company.new(company_params)
 
-    if @company.save
+    if @current_user.id == company_params[:user_id] && @company.save
       render :create, status: :ok
     else
-      render :create.errors, status: :unprocessable_entity
+      render json: { error: 'error' }, status: :unprocessable_entity
     end
   end
 
   def update
-    if @company.update(company_params)
+    if @current_user.id == company_params[:user_id] && @current_user.companies.include?(Company.find(params[:id]))  && @company.update(company_params)
       render @company, status: :ok
     else
-      render @company.errors, status: :unprocessable_entity
+      render json: { error: 'error' }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @company.destroy
-    head :no_content
+    if @current_user.id == @company.user_id
+      @company.destroy
+      head :no_content
+    else
+      render json: { error: 'error' }
+    end
   end
 
   private 
