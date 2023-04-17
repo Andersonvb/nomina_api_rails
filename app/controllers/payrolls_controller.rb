@@ -2,32 +2,45 @@ class PayrollsController < ApplicationController
   before_action :set_payroll, only: [:show, :update, :destroy]
 
   def index
-    @payrolls = Payroll.order(:id)
+    companies_ids = Company.where(user_id: @current_user.id).map { |company| company.id}
+    periods_ids = Period.where(company_id: companies_ids).map { |period| period.id }
+
+    @payrolls = Payroll.where(period_id: periods_ids)
   end
 
-  def show; end
+  def show
+    if @payroll.period.company.user_id == @current_user.id
+      render :show, status: :ok
+    else
+      render json: { error: 'error' }
+    end
+  end
 
   def create 
     @payroll = Payroll.new(payroll_params)
 
-    if @payroll.save
+    if @payroll.period.company.user_id == @current_user.id && @payroll.employee.company.user_id == @current_user.id && @payroll.save
       render :create, status: :ok
     else
-      render @payroll.errors, status: :unprocessable_entity
+      render json: { error: 'error' }, status: :unprocessable_entity
     end
   end
 
   def update
-    if @payroll.update(payroll_params)
+    if Period.find(payroll_params[:period_id]).company.user_id == @current_user.id && Employee.find(payroll_params[:employee_id]).company.user_id == @current_user.id && Payroll.find(params[:id]).period.company.user_id == @current_user.id && @payroll.update(payroll_params)
       render :create, status: :ok
     else
-      render @payroll.errors, status: :unprocessable_entity
+      render json: { error: 'error' }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @payroll.destroy
-    head :no_content
+    if Payroll.find(params[:id]).period.company.user_id == @current_user.id
+      @payroll.destroy
+      head :no_content
+    else
+      render json: { error: 'error' }
+    end
   end
 
   private 
