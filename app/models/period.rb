@@ -9,4 +9,6 @@ class Period < ApplicationRecord
   private 
 
   def start_date_before_end_date; end
+
+  # TODO Los periodos deben de ser unicos POR EMPRESA
 end
