@@ -2,32 +2,48 @@ class EmployeesController < ApplicationController
   before_action :set_employee, only: [:show, :update, :destroy]
 
   def index
-    @employees = Employee.order(:id)
+    companies_id = Company.where(user_id: @current_user.id).map { |company| company.id }
+    @employees = Employee.where(company_id: companies_id)
   end
 
-  def show; end
+  def show
+    if @current_user.id == @employee.company.user_id
+      render :show, status: :ok
+    else
+      render json: { error: 'error' }
+    end
+  end
 
   def create 
     @employee = Employee.new(employee_params)
+    companies = Company.where(user_id: @current_user.id)
 
-    if @employee.save
+    if companies.any? { |company| company.id == @employee.company_id } && @employee.save
       render :create, status: :ok
     else
-      render @employee.errors, status: :unprocessable_entity
+      render json: { error: 'error' }, status: :unprocessable_entity
     end
   end
 
   def update
-    if @employee.update(employee_params)
+    companies = Company.where(user_id: @current_user.id)
+
+    if @employee.company.user_id == @current_user.id && companies.any? { |company| company.id == employee_params[:company_id] } && @employee.update(employee_params)
       render :create, status: :ok
     else
-      render @employee.errors, status: :unprocessable_entity
+      render json: { error: 'error' }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @employee.destroy
-    head :no_content
+    companies = Company.where(user_id: @current_user.id)
+
+    if companies.any? { |company| company.id == @employee.company_id }
+      @employee.destroy
+      head :no_content
+    else
+      render json: { error: 'error' }
+    end
   end
 
   private 
