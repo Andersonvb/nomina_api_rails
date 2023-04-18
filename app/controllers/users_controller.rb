@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
+  skip_before_action :authenticate_user
   before_action :set_user, only: [:show, :update, :destroy]
-  skip_before_action :authenticate_request
 
   def index
     @users = User.order(:id)
@@ -14,7 +14,7 @@ class UsersController < ApplicationController
     if @user.save
       render :create, status: :ok
     else
-      render @user.errors, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @user }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -22,7 +22,7 @@ class UsersController < ApplicationController
     if @user.update(user_params)
       render :create, status: :ok
     else
-      render @user.errors, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @user }, formats: :json, status: :unprocessable_entity
     end
   end
 

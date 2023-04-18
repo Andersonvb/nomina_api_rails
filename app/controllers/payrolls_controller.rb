@@ -12,7 +12,9 @@ class PayrollsController < ApplicationController
     if @payroll.period.company.user_id == @current_user.id
       render :show, status: :ok
     else
-      render json: { error: 'error' }
+      @payroll.errors.add(:base, I18n.t('activerecord.errors.models.payroll.base.not_valid_payroll_id'))
+
+      render 'errors/error', locals: { object: @payroll }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -22,7 +24,7 @@ class PayrollsController < ApplicationController
     if @payroll.period.company.user_id == @current_user.id && @payroll.employee.company.user_id == @current_user.id && @payroll.save
       render :create, status: :ok
     else
-      render json: { error: 'error' }, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @payroll }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -30,7 +32,7 @@ class PayrollsController < ApplicationController
     if Period.find(payroll_params[:period_id]).company.user_id == @current_user.id && Employee.find(payroll_params[:employee_id]).company.user_id == @current_user.id && Payroll.find(params[:id]).period.company.user_id == @current_user.id && @payroll.update(payroll_params)
       render :create, status: :ok
     else
-      render json: { error: 'error' }, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @payroll }, formats: :json, status: :unprocessable_entity
     end
   end
 

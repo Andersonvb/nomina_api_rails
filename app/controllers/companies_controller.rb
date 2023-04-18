@@ -9,7 +9,9 @@ class CompaniesController < ApplicationController
     if @current_user.companies.include?(@company)
       render :show, status: :ok
     else
-      render json: { error: 'No company' }
+      @company.errors.add(:base, I18n.t('activerecord.errors.models.company.base.not_valid_company_id'))
+
+      render 'errors/error', locals: { object: @company }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -19,7 +21,7 @@ class CompaniesController < ApplicationController
     if @current_user.id == company_params[:user_id] && @company.save
       render :create, status: :ok
     else
-      render json: { error: 'error' }, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @company }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -27,7 +29,7 @@ class CompaniesController < ApplicationController
     if @current_user.id == company_params[:user_id] && @current_user.companies.include?(Company.find(params[:id]))  && @company.update(company_params)
       render @company, status: :ok
     else
-      render json: { error: 'error' }, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @company }, formats: :json, status: :unprocessable_entity
     end
   end
 

@@ -1,0 +1,64 @@
+es:
+  activerecord:
+    models:
+      user: "Usuario"
+      company: "Empresa"
+      employee: "Empleado"
+      period: "Periodo"
+      payroll: "Nomina"
+    attributes:
+      user:
+        name: "Nombre"
+        lastname: "Apellido"
+        username: "Nombre de usuario"
+        password: "Contraseña del usuario"
+      company:
+        name: "Nombre de la empresa"
+      employee:
+        name: "Nombre del empleado"
+        lastname: "Apellido del empleado"
+        salary: "Salario del empleado"
+        start_date: "Fecha de inicio"
+        end_date: "Fecha de fin"
+      period: 
+        start_date: "Fecha de inicio"
+        end_date: "Fecha de fin"
+      payroll:
+        salary_income: "Ingresos Salariales"
+        non_salary_income: "Ingresos No Salariales"
+        deductions: "Deducciones"
+        transport_allowance: "Subsidio de transporte"
+        net_pay: "Pago neto"
+    errors:
+      models:
+        company:
+          base:
+            not_valid_company_id: "El id ingresado no corresponde a ninguna compañia válida"
+        employee:
+          base:
+            not_valid_employee_id: "El id ingresado no corresponde a ningún empleado válido"
+        payroll:
+          base:
+            not_valid_payroll_id: "El id ingresado no corresponde a ninguna nomina válida"
+        period:
+          base:
+            not_valid_period_id: "El id ingresado no corresponde a ningún periodo válido"
+      messages:
+        record_invalid: "La validación falló: %{errors}"
+        taken: "ya existe"
+        blank: "no puede estar en blanco"
+        invalid: "no es válido"
+        confirmation: "no coincide con la confirmación"
+        accepted: "debe ser aceptado"
+        empty: "no puede estar vacío"
+        too_long:
+          one: "es demasiado largo (máximo 1 carácter)"
+          other: "es demasiado largo (máximo %{count} caracteres)"
+        too_short:
+          one: "es demasiado corto (mínimo 1 carácter)"
+          other: "es demasiado corto (mínimo %{count} caracteres)"
+        wrong_length:
+          one: "no tiene la longitud correcta (debe ser 1 carácter)"
+          other: "no tiene la longitud correcta (debe ser %{count} caracteres)"
+        not_a_number: "no es un número"
+        not_found: "Recurso no encontrado"

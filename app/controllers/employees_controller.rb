@@ -10,7 +10,9 @@ class EmployeesController < ApplicationController
     if @current_user.id == @employee.company.user_id
       render :show, status: :ok
     else
-      render json: { error: 'error' }
+      @employee.errors.add(:base, I18n.t('activerecord.errors.models.employee.base.not_valid_employee_id'))
+
+      render 'errors/error', locals: { object: @employee }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -21,7 +23,7 @@ class EmployeesController < ApplicationController
     if companies.any? { |company| company.id == @employee.company_id } && @employee.save
       render :create, status: :ok
     else
-      render json: { error: 'error' }, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @employee }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -31,7 +33,7 @@ class EmployeesController < ApplicationController
     if @employee.company.user_id == @current_user.id && companies.any? { |company| company.id == employee_params[:company_id] } && @employee.update(employee_params)
       render :create, status: :ok
     else
-      render json: { error: 'error' }, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @employee }, formats: :json, status: :unprocessable_entity
     end
   end
 

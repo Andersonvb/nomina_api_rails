@@ -10,7 +10,9 @@ class PeriodsController < ApplicationController
     if @current_user.id == @period.company.user_id
       render :show, status: :ok
     else
-      render json: { error: 'No period' }
+      @period.errors.add(:base, I18n.t('activerecord.errors.models.period.base.not_valid_period_id'))
+
+      render 'errors/error', locals: { object: @period }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -21,7 +23,7 @@ class PeriodsController < ApplicationController
     if companies.any? { |company| company.id == @period.company_id } && @period.save
       render :create, status: :ok
     else
-      render json: { error: 'error'}, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @period }, formats: :json, status: :unprocessable_entity
     end
   end
 
@@ -31,7 +33,7 @@ class PeriodsController < ApplicationController
     if @period.company.user_id == @current_user.id && companies.any? { |company| company.id == period_params[:company_id] } && @period.update(period_params)
       render :create, status: :ok
     else
-      render json: { error: 'error' }, status: :unprocessable_entity
+      render 'errors/error', locals: { object: @period }, formats: :json, status: :unprocessable_entity
     end
   end
 
