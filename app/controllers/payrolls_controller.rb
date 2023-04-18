@@ -1,47 +1,51 @@
 class PayrollsController < ApplicationController
+  include RenderErrorJson
+
   before_action :set_payroll, only: [:show, :update, :destroy]
+  before_action :set_companies
 
   def index
-    companies_ids = Company.where(user_id: @current_user.id).map { |company| company.id}
-    periods_ids = Period.where(company_id: companies_ids).map { |period| period.id }
+    periods = Period.joins(:company).where(companies: {id: @companies.pluck(:id)})
 
-    @payrolls = Payroll.where(period_id: periods_ids)
+    @payrolls = Payroll.where(period_id: periods.pluck(:id))
   end
 
   def show
-    if @payroll.period.company.user_id == @current_user.id
+    if validate_company_id(@payroll.period.company_id)
       render :show, status: :ok
     else
-      @payroll.errors.add(:base, I18n.t('activerecord.errors.models.payroll.base.not_valid_payroll_id'))
+      add_invalid_payroll_id_error
 
-      render 'errors/error', locals: { object: @payroll }, formats: :json, status: :unprocessable_entity
+      render_error_json(@payroll, :unprocessable_entity)
     end
   end
 
   def create 
     @payroll = Payroll.new(payroll_params)
 
-    if @payroll.period.company.user_id == @current_user.id && @payroll.employee.company.user_id == @current_user.id && @payroll.save
+    if validate_company_id(@payroll.period.company_id) && validate_company_id(@payroll.employee.company_id) && @payroll.save
       render :create, status: :ok
     else
-      render 'errors/error', locals: { object: @payroll }, formats: :json, status: :unprocessable_entity
+      render_error_json(@payroll, :unprocessable_entity)
     end
   end
 
   def update
-    if Period.find(payroll_params[:period_id]).company.user_id == @current_user.id && Employee.find(payroll_params[:employee_id]).company.user_id == @current_user.id && Payroll.find(params[:id]).period.company.user_id == @current_user.id && @payroll.update(payroll_params)
+    if validate_company_id(Period.find(payroll_params[:period_id]).company_id) && validate_company_id(Period.find(payroll_params[:employee_id]).company_id) && validate_company_id(@payroll.period.company_id) && @payroll.update(payroll_params)
       render :create, status: :ok
     else
-      render 'errors/error', locals: { object: @payroll }, formats: :json, status: :unprocessable_entity
+      render_error_json(@payroll, :unprocessable_entity)
     end
   end
 
   def destroy
-    if Payroll.find(params[:id]).period.company.user_id == @current_user.id
+    if validate_company_id(@payroll.period.company_id)
       @payroll.destroy
       head :no_content
     else
-      render json: { error: 'error' }
+      add_invalid_payroll_id_error
+
+      render_error_json(@payroll, :unprocessable_entity)
     end
   end
 
@@ -53,5 +57,17 @@ class PayrollsController < ApplicationController
 
   def set_payroll
     @payroll = Payroll.find(params[:id])
+  end
+
+  def set_companies
+    @companies = Company.user_companies(@current_user.id)
+  end
+
+  def validate_company_id(company_id)
+    @companies.pluck(:id).include?(company_id)
+  end
+
+  def add_invalid_payroll_id_error
+    @payroll.errors.add(:base, I18n.t('activerecord.errors.models.payroll.base.not_valid_payroll_id'))
   end
 end
