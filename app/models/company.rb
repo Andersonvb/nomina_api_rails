@@ -1,4 +1,6 @@
 class Company < ApplicationRecord
+  include StringValidations
+
   belongs_to :user
 
   has_many :periods, dependent: :destroy
@@ -6,5 +8,5 @@ class Company < ApplicationRecord
 
   validates :name, presence: true
   validates :name, length: { minimum: 3, maximum: 20 }
-  validates :name, format: { with: /\A[a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*\z/ }
+  validates :name, format: { with: proc { |w| w.regex_valid_string } }
 end
