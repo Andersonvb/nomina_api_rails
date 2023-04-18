@@ -1,50 +1,51 @@
 class PeriodsController < ApplicationController
+  include RenderErrorJson
+
   before_action :set_period, only: [:show, :update, :destroy]
+  before_action :set_companies
 
   def index
-    companies_id = Company.where(user_id: @current_user.id).map { |company| company.id }
-    @periods = Period.where(company_id: companies_id)
+    @periods = Period.joins(:company).where(companies: {id: @companies.pluck(:id)})
   end
 
   def show
-    if @current_user.id == @period.company.user_id
+    if validate_user_id(@period.company.user_id)
       render :show, status: :ok
     else
-      @period.errors.add(:base, I18n.t('activerecord.errors.models.period.base.not_valid_period_id'))
+      add_invalid_period_id_error
 
-      render 'errors/error', locals: { object: @period }, formats: :json, status: :unprocessable_entity
+      render_error_json(@period, :unprocessable_entity)
     end
   end
 
   def create 
     @period = Period.new(period_params)
-    companies = Company.where(user_id: @current_user.id)
 
-    if companies.any? { |company| company.id == @period.company_id } && @period.save
+    if validate_company_id(@period.company_id) && @period.save
       render :create, status: :ok
     else
-      render 'errors/error', locals: { object: @period }, formats: :json, status: :unprocessable_entity
+      render_error_json(@period, :unprocessable_entity)
     end
   end
 
   def update
     companies = Company.where(user_id: @current_user.id)
 
-    if @period.company.user_id == @current_user.id && companies.any? { |company| company.id == period_params[:company_id] } && @period.update(period_params)
+    if validate_company_id(@period.company_id) && validate_company_id(period_params[:company_id]) && @period.update(period_params)
       render :create, status: :ok
     else
-      render 'errors/error', locals: { object: @period }, formats: :json, status: :unprocessable_entity
+      render_error_json(@period, :unprocessable_entity)
     end
   end
 
   def destroy
-    companies = Company.where(user_id: @current_user.id)
-
-    if companies.any? { |company| company.id == @period.company_id }
+    if validate_company_id(@period.company_id)
       @period.destroy
       head :no_content
     else 
-      render json: { error: 'error' }
+      add_invalid_period_id_error
+
+      render_error_json(@period, :unprocessable_entity)
     end
   end
 
@@ -56,5 +57,21 @@ class PeriodsController < ApplicationController
 
   def set_period
     @period = Period.find(params[:id])
+  end
+
+  def set_companies
+    @companies = Company.user_companies(@current_user.id)
+  end
+
+  def validate_user_id(user_id)
+    @current_user.id == user_id
+  end
+
+  def validate_company_id(company_id)
+    @companies.pluck(:id).include?(company_id)
+  end
+
+  def add_invalid_period_id_error
+    @period.errors.add(:base, I18n.t('activerecord.errors.models.period.base.not_valid_period_id'))
   end
 end
