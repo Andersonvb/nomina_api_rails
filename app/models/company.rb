@@ -1,5 +1,6 @@
 class Company < ApplicationRecord
   include StringValidations
+  include JsonWebToken
 
   belongs_to :user
 
@@ -9,4 +10,6 @@ class Company < ApplicationRecord
   validates :name, presence: true
   validates :name, length: { minimum: 3, maximum: 20 }
   validates :name, format: { with: proc { |w| w.regex_valid_string } }
+
+  scope :user_companies, ->(user_id) { where(user_id: user_id) }
 end

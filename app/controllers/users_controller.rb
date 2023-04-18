@@ -2,6 +2,8 @@ class UsersController < ApplicationController
   skip_before_action :authenticate_user
   before_action :set_user, only: [:show, :update, :destroy]
 
+  include RenderErrorJson
+  
   def index
     @users = User.order(:id)
   end
@@ -14,7 +16,7 @@ class UsersController < ApplicationController
     if @user.save
       render :create, status: :ok
     else
-      render 'errors/error', locals: { object: @user }, formats: :json, status: :unprocessable_entity
+      render_error_json(@user, :unprocessable_entity)
     end
   end
 
@@ -22,7 +24,7 @@ class UsersController < ApplicationController
     if @user.update(user_params)
       render :create, status: :ok
     else
-      render 'errors/error', locals: { object: @user }, formats: :json, status: :unprocessable_entity
+      render_error_json(@user, :unprocessable_entity)
     end
   end
 
