@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_14_033457) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_19_001001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,6 +44,21 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_14_033457) do
     t.decimal "net_pay"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "deduction_health"
+    t.float "deduction_pension"
+    t.float "solidarity_fund"
+    t.float "subsistence_account"
+    t.float "social_security_health"
+    t.float "social_security_pension"
+    t.float "arl"
+    t.float "compensation_fund"
+    t.float "icbf"
+    t.float "sena"
+    t.float "severance_pay"
+    t.float "interest_on_severance_pay"
+    t.float "service_bonus"
+    t.float "vacation"
+    t.float "company_total_cost"
     t.index ["employee_id"], name: "index_payrolls_on_employee_id"
     t.index ["period_id"], name: "index_payrolls_on_period_id"
   end
