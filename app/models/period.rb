@@ -5,6 +5,8 @@ class Period < ApplicationRecord
 
   validates :start_date, presence: true
   validates :end_date, presence: true
+  validates :start_date, uniqueness: { scope: [:end_date, :company_id], message: "ya existe un período con estas fechas para esta compañía" }
+  validate :start_date_before_end_date
 
 
   def duration_in_days
@@ -13,7 +15,8 @@ class Period < ApplicationRecord
 
   private 
 
-  def start_date_before_end_date; end
+  def start_date_before_end_date
+    errors.add(:start_date, "debe ser anterior a la fecha de finalización") if start_date >= end_date
+  end
 
-  # TODO Los periodos deben de ser unicos POR EMPRESA
 end
