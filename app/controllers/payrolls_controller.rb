@@ -1,3 +1,5 @@
+require_relative '../services/payroll/payroll_creator'
+
 class PayrollsController < ApplicationController
   include RenderErrorJson
 
@@ -23,7 +25,7 @@ class PayrollsController < ApplicationController
   def create 
     @payroll = Payroll.new(payroll_params)
 
-    if validate_company_id(@payroll.period.company_id) && validate_company_id(@payroll.employee.company_id) && @payroll.save
+    if PayrollCreator.call(@payroll)
       render :create, status: :ok
     else
       render_error_json(@payroll, :unprocessable_entity)
@@ -52,7 +54,7 @@ class PayrollsController < ApplicationController
   private 
 
   def payroll_params
-    params.require(:payroll).permit(:employee_id, :period_id, :salary_income, :non_salary_income, :deductions, :transport_allowance, :net_pay)
+    params.require(:payroll).permit(:employee_id, :period_id, :salary_income, :non_salary_income, :deductions)
   end
 
   def set_payroll

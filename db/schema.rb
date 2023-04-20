@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_19_001001) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_19_021511) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -37,28 +37,33 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_19_001001) do
   create_table "payrolls", force: :cascade do |t|
     t.bigint "employee_id", null: false
     t.bigint "period_id", null: false
+    t.float "salary"
     t.decimal "salary_income"
     t.decimal "non_salary_income"
     t.decimal "deductions"
     t.decimal "transport_allowance"
-    t.decimal "net_pay"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.float "total_withholdings_and_deductions"
     t.float "deduction_health"
     t.float "deduction_pension"
     t.float "solidarity_fund"
     t.float "subsistence_account"
+    t.float "total_social_security"
     t.float "social_security_health"
     t.float "social_security_pension"
     t.float "arl"
+    t.float "total_parafiscal_contributions"
     t.float "compensation_fund"
     t.float "icbf"
     t.float "sena"
+    t.float "total_social_benefits"
     t.float "severance_pay"
     t.float "interest_on_severance_pay"
     t.float "service_bonus"
     t.float "vacation"
+    t.decimal "net_pay"
     t.float "company_total_cost"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["employee_id"], name: "index_payrolls_on_employee_id"
     t.index ["period_id"], name: "index_payrolls_on_period_id"
   end
