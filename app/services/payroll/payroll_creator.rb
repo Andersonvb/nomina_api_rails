@@ -1,6 +1,19 @@
 require_relative '../application_service'
+require_relative './helpers/social_benefits_calculations'
+require_relative './helpers/parafiscal_contributions_calculations'
+require_relative './helpers/social_security_calculations'
+require_relative './helpers/withholdings_and_deductions_calculations'
+require_relative './helpers/income_calculations'
+require_relative './helpers/total_calculations'
 
 class PayrollCreator < ApplicationService
+  include SocialBenefitsCalculations
+  include ParafiscalContributionsCalculations
+  include SocialSecurityCalculations
+  include WithholdingsAndDeductionsCalculations
+  include IncomeCalculations
+  include TotalCalculations
+
   MINIMUM_SALARY = 1000000
   TRANSPORT_ALLOWANCE = 117172
 
@@ -20,167 +33,26 @@ class PayrollCreator < ApplicationService
   private 
   
   def create_payroll
-    salary_ratio = calculate_salary_ratio
+    incomes = calculate_incomes(@payroll, MINIMUM_SALARY, TRANSPORT_ALLOWANCE)
 
-    salary = calculate_salary
+    withholdings_and_deductions = calculate_withholdings_and_deductions(incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
 
-    total_social_security_and_parafiscal_base = calcultate_total_social_security_and_parafiscal_base(salary)
+    social_security = calculate_social_security(incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
 
-    total_social_security_ratio = (total_social_security_and_parafiscal_base / MINIMUM_SALARY)
+    parafiscal_contributions = calculate_parafiscal_contributions(incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
 
-    transport_allowance = calculate_trasport_allowance(salary_ratio)
+    social_benefits = calculate_social_benefits(incomes[:social_benefits_total_base], incomes[:total_social_security_and_parafiscal_base])
 
-    social_benefits_total_base = calculate_social_benefits_total_base(total_social_security_and_parafiscal_base, transport_allowance)
+    totals = calculate_total(incomes, withholdings_and_deductions, social_security, social_benefits, parafiscal_contributions)
 
-    total_income = calculate_total_income(social_benefits_total_base)
-
-    withholdings_and_deductions = calculate_withholdings_and_deductions(total_social_security_and_parafiscal_base, total_social_security_ratio)
-
-    social_security = calculate_social_security(total_social_security_and_parafiscal_base, total_social_security_ratio)
-
-    parafiscal_contributions = calculate_parafiscal_contributions(total_social_security_and_parafiscal_base, total_social_security_ratio)
-
-    social_benefits = calculate_social_benefits(social_benefits_total_base, total_social_security_and_parafiscal_base)
-
-    net_pay = calculate_net_pay(total_income, withholdings_and_deductions[:total])
-
-    company_total_cost = calculate_company_total_cost(total_income, social_security[:total], parafiscal_contributions[:total], social_benefits[:total])
-
-    set_payroll_attributes(salary, transport_allowance, withholdings_and_deductions, social_security, parafiscal_contributions, social_benefits, net_pay, company_total_cost)
+    set_payroll_attributes(incomes, withholdings_and_deductions, social_security, parafiscal_contributions, social_benefits, totals)
 
     validate_and_save_payroll
   end
 
-  def calculate_salary
-    (@base_salary * @period_days) / 30
-  end
-
-  def calculate_salary_ratio
-    @base_salary / MINIMUM_SALARY
-  end
-
-  def calculate_trasport_allowance(salary_ratio)
-    salary_ratio <= 2 ? (TRANSPORT_ALLOWANCE * @period_days) / 30 : 0
-  end
-
-  def calcultate_total_social_security_and_parafiscal_base(salary)
-    salary + @payroll.salary_income
-  end
-
-  def calculate_social_benefits_total_base(total_social_security_and_parafiscal_base, transport_allowance)
-    total_social_security_and_parafiscal_base + transport_allowance
-  end
-
-  def calculate_total_income(social_benefits_total_base)
-    social_benefits_total_base + @payroll.non_salary_income 
-  end
-
-  def calculate_withholdings_and_deductions(total_social_security_and_parafiscal_base, total_social_security_ratio)
-    deduction_health = @base_salary * 0.04
-    deduction_pension = @base_salary * 0.04
-
-    solidarity_fund = calculate_solidarity_fund(total_social_security_and_parafiscal_base, total_social_security_ratio)
-
-    subsistence_account = calculate_subsistence_acount(total_social_security_and_parafiscal_base, total_social_security_ratio)
-
-    total_withholdings_and_deductions = deduction_health + deduction_pension + solidarity_fund + subsistence_account
-
-    {
-      health: deduction_health,
-      pension: deduction_pension,
-      solidarity_fund: solidarity_fund,
-      subsistence_account: subsistence_account,
-      total: total_withholdings_and_deductions
-    }
-  end
-
-  def calculate_solidarity_fund(total_social_security_and_parafiscal_base, total_social_security_ratio)
-    solidarity_fund_percentage = total_social_security_ratio >= 4 ? 0.01 : 0
-
-    total_social_security_and_parafiscal_base * solidarity_fund_percentage
-  end
-
-  def calculate_subsistence_acount(total_social_security_and_parafiscal_base, total_social_security_ratio)
-    subsistence_account_percentage = case total_social_security_ratio
-    when 0...16 then 0
-    when 16...17 then 0.002
-    when 17...18 then 0.004
-    when 18...19 then 0.006
-    when 19...20 then 0.008
-    else 0.01
-    end
-
-    subsistence_account_percentage * total_social_security_and_parafiscal_base
-  end
-
-  def calculate_social_security(total_social_security_and_parafiscal_base, total_social_security_ratio)
-    social_security_health_percentage = total_social_security_ratio < 10 ? 0 : 0.085
-    social_security_health = total_social_security_and_parafiscal_base * social_security_health_percentage
-
-    social_security_pension = total_social_security_and_parafiscal_base * 0.12
-
-    arl = total_social_security_and_parafiscal_base * 0.0696
-
-    total_social_security = social_security_health + social_security_pension + arl
-
-    {
-      health: social_security_health,
-      pension: social_security_pension,
-      arl: arl,
-      total: total_social_security
-    }
-  end
-
-  def calculate_parafiscal_contributions(total_social_security_and_parafiscal_base, total_social_security_ratio)
-    compensation_fund = total_social_security_and_parafiscal_base * 0.04
-
-    icbf_percentage = total_social_security_ratio < 10 ? 0 : 0.03
-    icbf = total_social_security_and_parafiscal_base * icbf_percentage
-
-    sena_percentage = total_social_security_ratio < 10 ? 0 : 0.02
-    sena = total_social_security_and_parafiscal_base * sena_percentage
-
-    total_parafiscal_contributions = compensation_fund + icbf + sena
-
-    {
-      compensation_fund: compensation_fund,
-      icbf: icbf,
-      sena: sena,
-      total: total_parafiscal_contributions
-    }
-  end
-
-  def calculate_social_benefits(social_benefits_total_base, total_social_security_and_parafiscal_base)
-    severance_pay = (social_benefits_total_base * 0.08333333333).round
-
-    interest_on_severance_pay = (severance_pay * 0.12).round
-
-    service_bonus = (social_benefits_total_base * 0.08333333333).round
-
-    vacation = (total_social_security_and_parafiscal_base * 0.04166666667).round
-
-    total_social_benefits = severance_pay + interest_on_severance_pay + service_bonus + vacation
-
-    {
-      severance_pay: severance_pay,
-      interest_on_severance_pay: interest_on_severance_pay,
-      service_bonus: service_bonus,
-      vacation: vacation,
-      total: total_social_benefits
-    }
-  end
-
-  def calculate_net_pay(total_income, withholdings_and_deductions_total)
-    total_income - withholdings_and_deductions_total
-  end
-
-  def calculate_company_total_cost(total_income, social_security_total, parafiscal_contributions_total, social_benefits_total)
-    total_income + social_security_total + parafiscal_contributions_total + social_benefits_total 
-  end
-
-  def set_payroll_attributes(salary, transport_allowance, withholdings_and_deductions, social_security, parafiscal_contributions, social_benefits, net_pay, company_total_cost)
-    @payroll.salary = salary
-    @payroll.transport_allowance = transport_allowance
+  def set_payroll_attributes(incomes, withholdings_and_deductions, social_security, parafiscal_contributions, social_benefits, totals)
+    @payroll.salary = incomes[:salary]
+    @payroll.transport_allowance = incomes[:transport_allowance]
 
     @payroll.deduction_health = withholdings_and_deductions[:health]
     @payroll.deduction_pension = withholdings_and_deductions[:pension]
@@ -204,8 +76,8 @@ class PayrollCreator < ApplicationService
     @payroll.vacation = social_benefits[:vacation]
     @payroll.total_social_benefits = social_benefits[:total]
 
-    @payroll.net_pay = net_pay
-    @payroll.company_total_cost = company_total_cost
+    @payroll.net_pay = totals[:employee_net_pay]
+    @payroll.company_total_cost = totals[:company_total_cost]
   end
 
   def validate_and_save_payroll
