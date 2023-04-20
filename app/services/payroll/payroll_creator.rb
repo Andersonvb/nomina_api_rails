@@ -81,12 +81,13 @@ class PayrollCreator < ApplicationService
   end
 
   def validate_and_save_payroll
-    if validate_company_id(@payroll.period.company_id) && validate_company_id(@payroll.employee.company_id) && @payroll.save
-      true
-    else
-      false
-    end
+    return false unless @payroll.valid?
+    return false unless validate_company_id(@payroll.period.company_id)
+    return false unless validate_company_id(@payroll.employee.company_id)
+    
+    @payroll.save
   end
+
 
   def validate_company_id(company_id)
     companies = Company.user_companies(@payroll.period.company.user_id)
