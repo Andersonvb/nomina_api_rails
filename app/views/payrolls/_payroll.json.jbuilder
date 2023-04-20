@@ -36,5 +36,5 @@ json.social_benefits do
   json.total payroll.total_social_benefits
 end
 
-json.net_pay payroll.net_pay
+json.total_employee_payment payroll.net_pay
 json.company_total_cost payroll.company_total_cost
