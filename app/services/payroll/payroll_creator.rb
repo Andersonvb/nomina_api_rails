@@ -7,11 +7,11 @@ require_relative './helpers/income_calculations'
 require_relative './helpers/total_calculations'
 
 class PayrollCreator < ApplicationService
-  include SocialBenefitsCalculations
-  include ParafiscalContributionsCalculations
-  include SocialSecurityCalculations
-  include WithholdingsAndDeductionsCalculations
   include IncomeCalculations
+  include WithholdingsAndDeductionsCalculations
+  include SocialSecurityCalculations
+  include ParafiscalContributionsCalculations
+  include SocialBenefitsCalculations
   include TotalCalculations
 
   MINIMUM_SALARY = 1000000
@@ -22,8 +22,6 @@ class PayrollCreator < ApplicationService
 
   def initialize(payroll)
     @payroll = payroll
-    @base_salary = @payroll.employee.salary
-    @period_days = @payroll.period.duration_in_days
   end
 
   def call
