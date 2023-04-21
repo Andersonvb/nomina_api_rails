@@ -20,18 +20,25 @@ class EmployeesController < ApplicationController
 
   def create 
     @employee = Employee.new(employee_params)
+    valid_company_id = validate_company_id(@employee.company_id)
 
-    if validate_company_id(@employee.company_id) && @employee.save
+    if valid_company_id && @employee.save
       render :create, status: :ok
     else
+      add_invalid_company_id_error unless valid_company_id
+
       render_error_json(@employee, :unprocessable_entity)
     end
   end
 
   def update
-    if validate_user_id(@employee.company.user_id) && validate_company_id(employee_params[:company_id]) && @employee.update(employee_params)
+    valid_company_id = validate_company_id(@employee.company_id)
+
+    if validate_user_id(@employee.company.user_id) && valid_company_id && @employee.update(employee_params)
       render :create, status: :ok
     else
+      add_invalid_company_id_error unless valid_company_id
+
       render_error_json(@employee, :unprocessable_entity)
     end
   end
@@ -71,5 +78,9 @@ class EmployeesController < ApplicationController
 
   def add_invalid_employee_id_error
     @employee.errors.add(:base, I18n.t('activerecord.errors.models.employee.base.not_valid_employee_id'))
+  end
+
+  def add_invalid_company_id_error
+    @employee.errors.add(:company_id, I18n.t('activerecord.errors.models.employee.company.not_valid_company_id'))
   end
 end

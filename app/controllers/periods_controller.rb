@@ -21,9 +21,13 @@ class PeriodsController < ApplicationController
   def create 
     @period = Period.new(period_params)
 
-    if validate_company_id(@period.company_id) && @period.save
+    valid_company_id = validate_company_id(@period.company_id)
+
+    if valid_company_id && @period.save
       render :create, status: :ok
     else
+      add_invalid_company_id_error unless valid_company_id
+
       render_error_json(@period, :unprocessable_entity)
     end
   end
@@ -73,5 +77,9 @@ class PeriodsController < ApplicationController
 
   def add_invalid_period_id_error
     @period.errors.add(:base, I18n.t('activerecord.errors.models.period.base.not_valid_period_id'))
+  end
+
+  def add_invalid_company_id_error
+    @period.errors.add(:company_id, I18n.t('activerecord.errors.models.period.company.not_valid_company_id'))
   end
 end

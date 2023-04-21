@@ -39,12 +39,16 @@ es:
         employee:
           base:
             not_valid_employee_id: "El id ingresado no corresponde a ningún empleado válido"
+          company:
+            not_valid_company_id: "El id de la compañia no pertenece al usuario actual"
         payroll:
           base:
             not_valid_payroll_id: "El id ingresado no corresponde a ninguna nomina válida"
         period:
           base:
             not_valid_period_id: "El id ingresado no corresponde a ningún periodo válido"
+          company:
+            not_valid_company_id: "El id de la compañia no pertenece al usuario actual"
       messages:
         record_invalid: "La validación falló: %{errors}"
         taken: "ya existe"
