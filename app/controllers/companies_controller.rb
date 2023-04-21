@@ -35,7 +35,7 @@ class CompaniesController < ApplicationController
     valid_user_id_from_body = validate_user_id(company_params[:user_id])
     valid_user_id_from_params = validate_user_id(@company.user_id)
 
-    if valid_user_id_from_params && valid_user_id && @company.update(company_params)
+    if valid_user_id_from_params && valid_user_id_from_body && @company.update(company_params)
       render @company, status: :ok
     else
       add_invalid_user_id_error if !valid_user_id_from_body || !valid_user_id_from_params
