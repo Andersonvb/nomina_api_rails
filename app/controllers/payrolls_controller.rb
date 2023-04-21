@@ -28,17 +28,13 @@ class PayrollsController < ApplicationController
     if PayrollCreator.call(@payroll)
       render :create, status: :ok
     else
+      add_invalid_employee_id_error if !validate_company_id(@payroll.employee.company_id) || !validate_company_id(@payroll.period.company_id)
+
       render_error_json(@payroll, :unprocessable_entity)
     end
   end
 
-  def update
-    if validate_company_id(Period.find(payroll_params[:period_id]).company_id) && validate_company_id(Period.find(payroll_params[:employee_id]).company_id) && validate_company_id(@payroll.period.company_id) && @payroll.update(payroll_params)
-      render :create, status: :ok
-    else
-      render_error_json(@payroll, :unprocessable_entity)
-    end
-  end
+  def update; end
 
   def destroy
     if validate_company_id(@payroll.period.company_id)
@@ -71,5 +67,9 @@ class PayrollsController < ApplicationController
 
   def add_invalid_payroll_id_error
     @payroll.errors.add(:base, I18n.t('activerecord.errors.models.payroll.base.not_valid_payroll_id'))
+  end
+
+  def add_invalid_employee_id_error
+    @payroll.errors.add(:employee, I18n.t('activerecord.errors.models.payroll.employee.not_valid_employee_id'))
   end
 end

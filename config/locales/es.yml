@@ -44,6 +44,8 @@ es:
         payroll:
           base:
             not_valid_payroll_id: "El id ingresado no corresponde a ninguna nomina válida"
+          employee:
+            not_valid_employee_id: "El id del empleado no pertenece al usuario actual"
         period:
           base:
             not_valid_period_id: "El id ingresado no corresponde a ningún periodo válido"
