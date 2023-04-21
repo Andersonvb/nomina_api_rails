@@ -33,11 +33,14 @@ class PeriodsController < ApplicationController
   end
 
   def update
-    companies = Company.where(user_id: @current_user.id)
+    valid_company_id_from_params = validate_company_id(@period.company_id)
+    valid_company_id_from_body = validate_company_id(period_params[:company_id])
 
-    if validate_company_id(@period.company_id) && validate_company_id(period_params[:company_id]) && @period.update(period_params)
+    if valid_company_id_from_params && valid_company_id_from_body && @period.update(period_params)
       render :create, status: :ok
     else
+      add_invalid_company_id_error if !valid_company_id_from_params || !valid_company_id_from_body
+
       render_error_json(@period, :unprocessable_entity)
     end
   end

@@ -20,6 +20,7 @@ class EmployeesController < ApplicationController
 
   def create 
     @employee = Employee.new(employee_params)
+
     valid_company_id = validate_company_id(@employee.company_id)
 
     if valid_company_id && @employee.save
@@ -32,12 +33,13 @@ class EmployeesController < ApplicationController
   end
 
   def update
-    valid_company_id = validate_company_id(@employee.company_id)
+    valid_company_id_from_body = validate_company_id(employee_params[:company_id])
+    valid_company_id_from_params = validate_company_id(@employee.company_id)
 
-    if validate_user_id(@employee.company.user_id) && valid_company_id && @employee.update(employee_params)
+    if valid_company_id_from_params && valid_company_id && @employee.update(employee_params)
       render :create, status: :ok
     else
-      add_invalid_company_id_error unless valid_company_id
+      add_invalid_company_id_error if !valid_company_id_from_body || !valid_company_id_from_params
 
       render_error_json(@employee, :unprocessable_entity)
     end

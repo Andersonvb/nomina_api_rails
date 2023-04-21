@@ -32,12 +32,13 @@ class CompaniesController < ApplicationController
   end
 
   def update
-    valid_user_id = validate_user_id(company_params[:user_id])
+    valid_user_id_from_body = validate_user_id(company_params[:user_id])
+    valid_user_id_from_params = validate_user_id(@company.user_id)
 
-    if validate_user_id(@company.user_id) && valid_user_id && @company.update(company_params)
+    if valid_user_id_from_params && valid_user_id && @company.update(company_params)
       render @company, status: :ok
     else
-      add_invalid_user_id_error unless valid_user_id
+      add_invalid_user_id_error if !valid_user_id_from_body || !valid_user_id_from_params
 
       render_error_json(@company, :unprocessable_entity)
     end
