@@ -8,7 +8,7 @@ class CompaniesController < ApplicationController
   end
 
   def show
-    if user_company?(@company)
+    if user_company?
       render :show, status: :ok
     else
       add_invalid_company_id_error
@@ -20,17 +20,25 @@ class CompaniesController < ApplicationController
   def create 
     @company = Company.new(company_params)
 
-    if validate_user_id(company_params[:user_id]) && @company.save
+    valid_user_id = validate_user_id(company_params[:user_id])
+
+    if valid_user_id && @company.save
       render :create, status: :created
     else
+      add_invalid_user_id_error unless valid_user_id
+
       render_error_json(@company, :unprocessable_entity)
     end
   end
 
   def update
-    if validate_user_id(@company.user_id) && validate_user_id(company_params[:user_id]) && @company.update(company_params)
+    valid_user_id = validate_user_id(company_params[:user_id])
+
+    if validate_user_id(@company.user_id) && valid_user_id && @company.update(company_params)
       render @company, status: :ok
     else
+      add_invalid_user_id_error unless valid_user_id
+
       render_error_json(@company, :unprocessable_entity)
     end
   end
@@ -56,8 +64,8 @@ class CompaniesController < ApplicationController
     @company = Company.find(params[:id])
   end
 
-  def user_company?(company)
-    @current_user.companies.include?(company)
+  def user_company?
+    @current_user.companies.include?(@company)
   end
 
   def validate_user_id(user_id)
@@ -66,5 +74,9 @@ class CompaniesController < ApplicationController
 
   def add_invalid_company_id_error
     @company.errors.add(:base, I18n.t('activerecord.errors.models.company.base.not_valid_company_id'))
+  end
+
+  def add_invalid_user_id_error
+    @company.errors.add(:user_id, I18n.t('activerecord.errors.models.company.user_id.not_valid_user_id'))
   end
 end

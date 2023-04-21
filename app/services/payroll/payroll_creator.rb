@@ -14,12 +14,6 @@ class PayrollCreator < ApplicationService
   include SocialBenefitsCalculations
   include TotalCalculations
 
-  MINIMUM_SALARY = 1000000
-  TRANSPORT_ALLOWANCE = 117172
-
-  # MINIMUM_SALARY = 1160000
-  # TRANSPORT_ALLOWANCE = 140606
-
   def initialize(payroll)
     @payroll = payroll
   end
@@ -31,7 +25,7 @@ class PayrollCreator < ApplicationService
   private 
   
   def create_payroll
-    incomes = calculate_incomes(@payroll, MINIMUM_SALARY, TRANSPORT_ALLOWANCE)
+    incomes = calculate_incomes(@payroll)
 
     withholdings_and_deductions = calculate_withholdings_and_deductions(@payroll, incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
 

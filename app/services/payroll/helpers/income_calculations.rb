@@ -1,20 +1,24 @@
 module IncomeCalculations
-  def calculate_incomes(payroll, minimum_salary, transport_allowance)
+
+  MINIMUM_SALARY = 1000000
+  TRANSPORT_ALLOWANCE = 117172
+
+  def calculate_incomes(payroll)
     base_salary = payroll.employee.salary
 
     period_days = payroll.period.duration_in_days
 
-    salary_ratio = calculate_salary_ratio(base_salary, minimum_salary)
+    salary_ratio = calculate_salary_ratio(base_salary, MINIMUM_SALARY)
 
     salary = calculate_salary(base_salary, period_days)
 
     total_social_security_and_parafiscal_base = calculate_total_social_security_and_parafiscal_base(salary, payroll)
 
-    total_social_security_ratio = calculate_total_social_security_ratio(total_social_security_and_parafiscal_base, minimum_salary)
+    total_social_security_ratio = calculate_total_social_security_ratio(total_social_security_and_parafiscal_base, MINIMUM_SALARY)
 
-    transport_allowance = calculate_transport_allowance(salary_ratio, period_days, transport_allowance)
+    transport_allowance = calculate_transport_allowance(salary_ratio, period_days, TRANSPORT_ALLOWANCE)
 
-    social_benefits_total_base = calculate_social_benefits_total_base(total_social_security_and_parafiscal_base, transport_allowance)
+    social_benefits_total_base = calculate_social_benefits_total_base(total_social_security_and_parafiscal_base, TRANSPORT_ALLOWANCE)
 
     total_income = calculate_total_income(social_benefits_total_base, payroll)
 
