@@ -33,7 +33,7 @@ class PayrollCreator < ApplicationService
   def create_payroll
     incomes = calculate_incomes(@payroll, MINIMUM_SALARY, TRANSPORT_ALLOWANCE)
 
-    withholdings_and_deductions = calculate_withholdings_and_deductions(incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
+    withholdings_and_deductions = calculate_withholdings_and_deductions(@payroll, incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
 
     social_security = calculate_social_security(incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
 
