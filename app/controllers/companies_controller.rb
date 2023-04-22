@@ -2,57 +2,36 @@ class CompaniesController < ApplicationController
   include RenderErrorJson
 
   before_action :set_company, only: [:show, :update, :destroy]
+  before_action :validate_user_id, only: [:create, :update]
+  before_action :validate_company_id, only: [:show, :update, :destroy]
 
   def index
-    @companies = Company.user_companies(@current_user.id)
+    @companies = @current_user.companies
   end
 
-  def show
-    if user_company?
-      render :show, status: :ok
-    else
-      add_invalid_company_id_error
-
-      render_error_json(@company, :unprocessable_entity)
-    end
-  end
+  def show; end
 
   def create 
-    @company = Company.new(company_params)
+    @company = @current_user.companies.new(company_params)
 
-    valid_user_id = validate_user_id(company_params[:user_id])
-
-    if valid_user_id && @company.save
+    if @company.save
       render :create, status: :created
     else
-      add_invalid_user_id_error unless valid_user_id
-
       render_error_json(@company, :unprocessable_entity)
     end
   end
 
   def update
-    valid_user_id_from_body = validate_user_id(company_params[:user_id])
-    valid_user_id_from_params = validate_user_id(@company.user_id)
-
-    if valid_user_id_from_params && valid_user_id_from_body && @company.update(company_params)
-      render @company, status: :ok
+    if @company.update(company_params)
+      render :create, status: :ok
     else
-      add_invalid_user_id_error if !valid_user_id_from_body || !valid_user_id_from_params
-
       render_error_json(@company, :unprocessable_entity)
     end
   end
 
   def destroy
-    if validate_user_id(@company.user_id)
-      @company.destroy
-      head :no_content
-    else
-      add_invalid_company_id_error
-
-      render_error_json(@company, :unprocessable_entity)
-    end
+    @company.destroy
+    head :no_content
   end
 
   private 
@@ -65,19 +44,15 @@ class CompaniesController < ApplicationController
     @company = Company.find(params[:id])
   end
 
+  def validate_user_id
+    render_invalid_model_id(:user_id) unless @current_user.id == company_params[:user_id].to_i 
+  end
+
+  def validate_company_id
+    render_record_not_found unless user_company?
+  end
+
   def user_company?
     @current_user.companies.include?(@company)
-  end
-
-  def validate_user_id(user_id)
-    @current_user.id == user_id
-  end
-
-  def add_invalid_company_id_error
-    @company.errors.add(:base, I18n.t('activerecord.errors.models.company.base.not_valid_company_id'))
-  end
-
-  def add_invalid_user_id_error
-    @company.errors.add(:user_id, I18n.t('activerecord.errors.models.company.user_id.not_valid_user_id'))
   end
 end
