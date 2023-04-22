@@ -2,58 +2,37 @@ class PeriodsController < ApplicationController
   include RenderErrorJson
 
   before_action :set_period, only: [:show, :update, :destroy]
-  before_action :set_companies
+  before_action :set_user_companies
+  before_action :validate_company_id, only: [:create, :update]
+  before_action :validate_period_id, only: [:show, :update, :destroy]
 
   def index
-    @periods = Period.joins(:company).where(companies: {id: @companies.pluck(:id)})
+    @periods = Period.joins(:company).where(companies: {id: @user_companies.pluck(:id)})
   end
 
-  def show
-    if validate_user_id(@period.company.user_id)
-      render :show, status: :ok
-    else
-      add_invalid_period_id_error
-
-      render_error_json(@period, :unprocessable_entity)
-    end
-  end
+  def show; end
 
   def create 
     @period = Period.new(period_params)
 
-    valid_company_id = validate_company_id(@period.company_id)
-
-    if valid_company_id && @period.save
+    if @period.save
       render :create, status: :ok
     else
-      add_invalid_company_id_error unless valid_company_id
-
       render_error_json(@period, :unprocessable_entity)
     end
   end
 
   def update
-    valid_company_id_from_params = validate_company_id(@period.company_id)
-    valid_company_id_from_body = validate_company_id(period_params[:company_id])
-
-    if valid_company_id_from_params && valid_company_id_from_body && @period.update(period_params)
+    if @period.update(period_params)
       render :create, status: :ok
     else
-      add_invalid_company_id_error if !valid_company_id_from_params || !valid_company_id_from_body
-
       render_error_json(@period, :unprocessable_entity)
     end
   end
 
   def destroy
-    if validate_company_id(@period.company_id)
       @period.destroy
       head :no_content
-    else 
-      add_invalid_period_id_error
-
-      render_error_json(@period, :unprocessable_entity)
-    end
   end
 
   private 
@@ -66,23 +45,19 @@ class PeriodsController < ApplicationController
     @period = Period.find(params[:id])
   end
 
-  def set_companies
-    @companies = Company.user_companies(@current_user.id)
+  def set_user_companies
+    @user_companies = Company.user_companies(@current_user.id)
   end
 
-  def validate_user_id(user_id)
-    @current_user.id == user_id
+  def validate_period_id
+    render_record_not_found unless user_company?(@period.company_id)
   end
 
-  def validate_company_id(company_id)
-    @companies.pluck(:id).include?(company_id)
+  def validate_company_id
+    render_invalid_model_id(:company_id) unless user_company?(period_params[:company_id])
   end
 
-  def add_invalid_period_id_error
-    @period.errors.add(:base, I18n.t('activerecord.errors.models.period.base.not_valid_period_id'))
-  end
-
-  def add_invalid_company_id_error
-    @period.errors.add(:company_id, I18n.t('activerecord.errors.models.period.company.not_valid_company_id'))
+  def user_company?(company_id)
+    @user_companies.pluck(:id).include?(company_id)
   end
 end
