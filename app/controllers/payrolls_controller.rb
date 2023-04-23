@@ -5,6 +5,9 @@ class PayrollsController < ApplicationController
 
   before_action :set_payroll, only: [:show, :update, :destroy]
   before_action :set_companies
+  before_action :validate_payroll_id, only: [:show, :update, :destroy]
+  before_action :validate_period_id, only: [:create, :update]
+  before_action :validate_employee_id, only: [:create, :update]
 
   def index
     periods = Period.joins(:company).where(companies: {id: @companies.pluck(:id)})
@@ -12,15 +15,7 @@ class PayrollsController < ApplicationController
     @payrolls = Payroll.where(period_id: periods.pluck(:id))
   end
 
-  def show
-    if validate_company_id(@payroll.period.company_id)
-      render :show, status: :ok
-    else
-      add_invalid_payroll_id_error
-
-      render_error_json(@payroll, :unprocessable_entity)
-    end
-  end
+  def show; end
 
   def create 
     @payroll = Payroll.new(payroll_params)
@@ -28,24 +23,21 @@ class PayrollsController < ApplicationController
     if PayrollCreator.call(@payroll)
       render :create, status: :ok
     else
-      add_invalid_employee_id_error if !validate_company_id(@payroll.employee.company_id) 
-      add_invalid_period_id_error if !validate_company_id(@payroll.period.company_id)
-
       render_error_json(@payroll, :unprocessable_entity)
     end
   end
 
-  def update; end
-
-  def destroy
-    if validate_company_id(@payroll.period.company_id)
-      @payroll.destroy
-      head :no_content
+  def update
+    if @payroll.update(payroll_params) && PayrollCreator.call(@payroll)
+      render :create, status: :ok
     else
-      add_invalid_payroll_id_error
-
       render_error_json(@payroll, :unprocessable_entity)
     end
+  end
+
+  def destroy
+    @payroll.destroy
+    head :no_content
   end
 
   private 
@@ -62,19 +54,19 @@ class PayrollsController < ApplicationController
     @companies = Company.user_companies(@current_user.id)
   end
 
-  def validate_company_id(company_id)
+  def validate_payroll_id
+    render_record_not_found unless user_company?(@payroll.period.company_id)
+  end
+
+  def validate_period_id
+    render_invalid_model_id(:period_id) unless user_company?(Period.find(payroll_params[:period_id]).company_id)
+  end
+
+  def validate_employee_id
+    render_invalid_model_id(:employee_id) unless user_company?(Employee.find(payroll_params[:employee_id]).company_id)
+  end
+
+  def user_company?(company_id)
     @companies.pluck(:id).include?(company_id)
-  end
-
-  def add_invalid_payroll_id_error
-    @payroll.errors.add(:base, I18n.t('activerecord.errors.models.payroll.base.not_valid_payroll_id'))
-  end
-
-  def add_invalid_employee_id_error
-    @payroll.errors.add(:employee, I18n.t('activerecord.errors.models.payroll.employee.not_valid_employee_id'))
-  end
-
-  def add_invalid_period_id_error
-    @payroll.errors.add(:period, I18n.t('activerecord.errors.models.payroll.period.not_valid_period_id'))
   end
 end
