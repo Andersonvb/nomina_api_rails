@@ -14,5 +14,7 @@ class Employee < ApplicationRecord
 
   private 
 
-  def start_date_before_end_date; end
+  def start_date_before_end_date
+    errors.add(:start_date, "debe ser anterior a la fecha de finalización") if start_date >= end_date
+  end
 end
