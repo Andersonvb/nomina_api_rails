@@ -1,19 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  employee: one
-  period: one
-  salary_income: 9.99
-  non_salary_income: 9.99
-  deductions: 9.99
-  transport_allowance: 9.99
-  net_pay: 9.99
+payroll_one:
+  employee: employee_one
+  period: period_one
+  salary_income: 0
+  non_salary_income: 0
+  deductions: 0
 
-two:
-  employee: two
-  period: two
-  salary_income: 9.99
-  non_salary_income: 9.99
-  deductions: 9.99
-  transport_allowance: 9.99
-  net_pay: 9.99
+payroll_two:
+  employee: employee_two
+  period: period_two
+  salary_income: 100000
+  non_salary_income: 0
+  deductions: 50000

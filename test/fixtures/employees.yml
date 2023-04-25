@@ -1,17 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  company: one
-  name: MyString
-  lastname: MyString
-  salary: 9.99
-  start_date: 2023-04-13
-  end_date: 2023-04-13
+employee_one:
+  company: company_one
+  name: EmployeeOne
+  lastname: EmployeeOne
+  salary: 750000
+  start_date: 2023-01-01
+  end_date: 2023-01-31
 
-two:
-  company: two
-  name: MyString
-  lastname: MyString
-  salary: 9.99
-  start_date: 2023-04-13
-  end_date: 2023-04-13
+employee_two:
+  company: company_two
+  name: EmployeeTwo
+  lastname: EmployeeTwo
+  salary: 750000
+  start_date: 2023-01-01
+  end_date: 2023-31-01
