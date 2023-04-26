@@ -4,10 +4,10 @@ user_one:
   name: UserOne
   lastname: UserOne
   username: user_one
-  password_digest: abc123
+  password_digest: <%= BCrypt::Password.create('abc123') %>
 
 user_two:
   name: UserTwo
   lastname: UserTwo
   username: user_two
-  password_digest: abc123
+  password_digest: <%= BCrypt::Password.create('abc123') %>

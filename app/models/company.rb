@@ -1,6 +1,5 @@
 class Company < ApplicationRecord
   include StringValidations
-  include JsonWebToken
 
   belongs_to :user
 
