@@ -4,13 +4,13 @@ class PayrollsController < ApplicationController
   include RenderErrorJson
 
   before_action :set_payroll, only: [:show, :update, :destroy]
-  before_action :set_companies
+  before_action :set_user_companies
   before_action :validate_payroll_id, only: [:show, :update, :destroy]
   before_action :validate_period_id, only: [:create, :update]
   before_action :validate_employee_id, only: [:create, :update]
 
   def index
-    periods = Period.joins(:company).where(companies: {id: @companies.pluck(:id)})
+    periods = Period.joins(:company).where(companies: {id: @user_companies.pluck(:id)})
 
     @payrolls = Payroll.where(period_id: periods.pluck(:id))
   end
@@ -50,8 +50,8 @@ class PayrollsController < ApplicationController
     @payroll = Payroll.find(params[:id])
   end
 
-  def set_companies
-    @companies = Company.user_companies(@current_user.id)
+  def set_user_companies
+    @user_companies = Company.user_companies(@current_user.id)
   end
 
   def validate_payroll_id
@@ -67,6 +67,6 @@ class PayrollsController < ApplicationController
   end
 
   def user_company?(company_id)
-    @companies.pluck(:id).include?(company_id)
+    @user_companies.pluck(:id).include?(company_id)
   end
 end

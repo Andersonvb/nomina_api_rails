@@ -20,6 +20,8 @@ module WithholdingsAndDeductionsCalculations
     }
   end
 
+  private
+
   def calculate_solidarity_fund(total_social_security_and_parafiscal_base, total_social_security_ratio)
     solidarity_fund_percentage = total_social_security_ratio >= 4 ? 0.01 : 0
 
