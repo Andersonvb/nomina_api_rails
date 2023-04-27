@@ -16,7 +16,7 @@ class EmployeesController < ApplicationController
     @employee = Employee.new(employee_params)
 
     if @employee.save
-      render :create, status: :ok
+      render :create, status: :created
     else
       render_error_json(@employee, :unprocessable_entity)
     end
@@ -50,7 +50,7 @@ class EmployeesController < ApplicationController
   end
 
   def validate_company_id
-    render_invalid_model_id(:company_id) unless user_company?(employee_params[:company_id])
+    render_invalid_model_id(:company_id) unless user_company?(employee_params[:company_id].to_i)
   end
 
   def validate_employee_id

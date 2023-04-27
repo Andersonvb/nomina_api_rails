@@ -16,7 +16,7 @@ class PeriodsController < ApplicationController
     @period = Period.new(period_params)
 
     if @period.save
-      render :create, status: :ok
+      render :create, status: :created
     else
       render_error_json(@period, :unprocessable_entity)
     end
@@ -54,7 +54,7 @@ class PeriodsController < ApplicationController
   end
 
   def validate_company_id
-    render_invalid_model_id(:company_id) unless user_company?(period_params[:company_id])
+    render_invalid_model_id(:company_id) unless user_company?(period_params[:company_id].to_i)
   end
 
   def user_company?(company_id)

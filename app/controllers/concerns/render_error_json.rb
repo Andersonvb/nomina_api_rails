@@ -14,6 +14,6 @@ module RenderErrorJson
   end
 
   def render_invalid_model_id(model)
-    render json: { error: [ message: "El #{model.to_s} no pertenece al usuario actual" ]}
+    render json: { error: [ message: "El #{model.to_s} no pertenece al usuario actual" ]}, status: :unprocessable_entity
   end
 end
