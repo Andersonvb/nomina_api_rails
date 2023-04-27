@@ -6,10 +6,3 @@ payroll_one:
   salary_income: 0
   non_salary_income: 0
   deductions: 0
-
-payroll_two:
-  employee: employee_two
-  period: period_two
-  salary_income: 100000
-  non_salary_income: 0
-  deductions: 50000

@@ -21,7 +21,7 @@ class PayrollsController < ApplicationController
     @payroll = Payroll.new(payroll_params)
 
     if PayrollCreator.call(@payroll)
-      render :create, status: :ok
+      render :create, status: :created
     else
       render_error_json(@payroll, :unprocessable_entity)
     end
@@ -55,15 +55,15 @@ class PayrollsController < ApplicationController
   end
 
   def validate_payroll_id
-    render_record_not_found unless user_company?(@payroll.period.company_id)
+    render_record_not_found unless user_company?(@payroll.period.company_id.to_i)
   end
 
   def validate_period_id
-    render_invalid_model_id(:period_id) unless user_company?(Period.find(payroll_params[:period_id]).company_id)
+    render_invalid_model_id(:period_id) unless user_company?(Period.find(payroll_params[:period_id]).company_id.to_i)
   end
 
   def validate_employee_id
-    render_invalid_model_id(:employee_id) unless user_company?(Employee.find(payroll_params[:employee_id]).company_id)
+    render_invalid_model_id(:employee_id) unless user_company?(Employee.find(payroll_params[:employee_id]).company_id.to_i)
   end
 
   def user_company?(company_id)
