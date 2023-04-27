@@ -19,6 +19,8 @@ class PayrollCreator < ApplicationService
   end
 
   def call
+    return false unless valid_payroll?
+
     create_payroll
   end
 
@@ -76,5 +78,14 @@ class PayrollCreator < ApplicationService
     return false unless @payroll.valid?
     
     @payroll.save
+  end
+
+  def valid_payroll?
+    return false if @payroll.period_id.nil? 
+    return false if @payroll.employee_id.nil? 
+    return false if @payroll.salary_income.nil? 
+    return false if @payroll.non_salary_income.nil? 
+    return false if @payroll.deductions.nil? 
+    true
   end
 end
