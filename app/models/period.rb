@@ -3,8 +3,7 @@ class Period < ApplicationRecord
 
   has_many :payrolls, dependent: :destroy
 
-  validates :start_date, presence: true
-  validates :end_date, presence: true
+  validates :start_date, :end_date, presence: true
   validates :start_date, uniqueness: { scope: [:end_date, :company_id], message: "ya existe un período con estas fechas para esta compañía" }
   validate :start_date_before_end_date
 

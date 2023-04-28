@@ -31,8 +31,8 @@ class PeriodsController < ApplicationController
   end
 
   def destroy
-      @period.destroy
-      head :no_content
+    @period.destroy
+    head :no_content
   end
 
   private 

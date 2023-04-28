@@ -4,6 +4,7 @@ class Employee < ApplicationRecord
   belongs_to :company
 
   has_many :payrolls, dependent: :destroy
+  has_many :salaries, dependent: :destroy
 
   validates :name, :lastname, :salary, presence: true
   validates :name, :lastname, length: { minimum: 3, maximum: 20 }
@@ -12,6 +13,10 @@ class Employee < ApplicationRecord
   validates :start_date, presence: true
   validates :end_date, presence: true
   validate :start_date_before_end_date
+
+  def salary_on_date(date)
+    salaries.where("start_date <= ? AND end_date >= ?", date, date).order("end_date ASC").first
+  end
 
   private 
 
