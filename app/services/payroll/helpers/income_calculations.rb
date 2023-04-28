@@ -4,7 +4,7 @@ module IncomeCalculations
   TRANSPORT_ALLOWANCE = 117172
 
   def calculate_incomes(payroll)
-    base_salary = payroll.employee.salary
+    base_salary = payroll.employee.salary_on_date(payroll.period.start_date).value
 
     period_days = payroll.period.duration_in_days
 
