@@ -1,6 +1,6 @@
 module WithholdingsAndDeductionsCalculations
   def calculate_withholdings_and_deductions(payroll, total_social_security_and_parafiscal_base, total_social_security_ratio)
-    base_salary = payroll.employee.salary
+    base_salary = payroll.employee.salary_on_date(payroll.period.start_date).value
 
     deduction_health = base_salary * 0.04
     deduction_pension = base_salary * 0.04

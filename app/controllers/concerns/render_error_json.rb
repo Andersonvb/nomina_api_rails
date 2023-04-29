@@ -16,4 +16,8 @@ module RenderErrorJson
   def render_invalid_model_id(model)
     render json: { error: [ message: "El #{model.to_s} no pertenece al usuario actual" ]}, status: :unprocessable_entity
   end
+
+  def render_no_salary_in_period_error
+    render json: { error: [ message: 'El empleado no tiene un salario para es periodo suministrado' ] }, status: :unprocessable_entity
+  end
 end

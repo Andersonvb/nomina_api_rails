@@ -9,7 +9,7 @@ class SalariesController < ApplicationController
   def index
     employees = Employee.joins(:company).where(companies: {id: @user_companies.pluck(:id)})
 
-    @payrolls = Payroll.where(employee_id: employees.pluck(:id))
+    @salaries = Salary.where(employee_id: employees.pluck(:id))
   end
 
   def show; end

@@ -6,10 +6,9 @@ class Employee < ApplicationRecord
   has_many :payrolls, dependent: :destroy
   has_many :salaries, dependent: :destroy
 
-  validates :name, :lastname, :salary, presence: true
+  validates :name, :lastname,  presence: true
   validates :name, :lastname, length: { minimum: 3, maximum: 20 }
   validates :name, :lastname, format: { with: proc { |w| w.regex_valid_string } }
-  validates_numericality_of :salary,  decimal: true
   validates :start_date, presence: true
   validates :end_date, presence: true
   validate :start_date_before_end_date

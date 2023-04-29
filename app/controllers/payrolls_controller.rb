@@ -59,11 +59,14 @@ class PayrollsController < ApplicationController
   end
 
   def validate_period_id
+    puts "Validate period"
     render_invalid_model_id(:period_id) unless user_company?(Period.find(payroll_params[:period_id]).company_id.to_i)
   end
 
   def validate_employee_id
     render_invalid_model_id(:employee_id) unless user_company?(Employee.find(payroll_params[:employee_id]).company_id.to_i)
+    
+    render_no_salary_in_period_error unless Employee&.find(payroll_params[:employee_id])&.salary_on_date(Period.find(payroll_params[:period_id]).start_date)
   end
 
   def user_company?(company_id)
