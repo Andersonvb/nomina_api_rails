@@ -18,7 +18,7 @@ module IncomeCalculations
 
     transport_allowance = calculate_transport_allowance(salary_ratio, period_days, TRANSPORT_ALLOWANCE)
 
-    social_benefits_total_base = calculate_social_benefits_total_base(total_social_security_and_parafiscal_base, TRANSPORT_ALLOWANCE)
+    social_benefits_total_base = calculate_social_benefits_total_base(total_social_security_and_parafiscal_base, transport_allowance)
 
     total_income = calculate_total_income(social_benefits_total_base, payroll)
 
