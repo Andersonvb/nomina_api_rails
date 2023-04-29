@@ -2,12 +2,13 @@ class EmployeesController < ApplicationController
   include RenderErrorJson
 
   before_action :set_employee, only: [:show, :update, :destroy]
-  before_action :set_user_companies
-  before_action :validate_company_id, only: [:create, :update]
-  before_action :validate_employee_id, only: [:show, :update, :destroy]
+  before_action :validate_company_owner, only: [:create, :update]
+  before_action :validate_employee_owner, only: [:show, :update, :destroy]
 
   def index
-    @employees = Employee.joins(:company).where(companies: {id: @user_companies.pluck(:id)})
+    user_companies = Company.user_companies(@current_user.id)
+
+    @employees = Employee.joins(:company).where(companies: {id: user_companies.pluck(:id)})
   end
 
   def show; end
@@ -45,19 +46,17 @@ class EmployeesController < ApplicationController
     @employee = Employee.find(params[:id])
   end
 
-  def set_user_companies
-    @user_companies = Company.user_companies(@current_user.id)
+  def validate_company_owner
+    company = Company.find(employee_params[:company_id])
+
+    render_invalid_id_error(:company_id) unless belongs_to_current_user?(company)
   end
 
-  def validate_company_id
-    render_invalid_model_id(:company_id) unless user_company?(employee_params[:company_id].to_i)
+  def validate_employee_owner
+    render_record_not_found unless belongs_to_current_user?(@employee.company)
   end
 
-  def validate_employee_id
-    render_record_not_found unless user_company?(@employee.company_id)
-  end
-
-  def user_company?(company_id)
-    @user_companies.pluck(:id).include?(company_id)
+  def belongs_to_current_user?(company)
+    company.user == @current_user
   end
 end

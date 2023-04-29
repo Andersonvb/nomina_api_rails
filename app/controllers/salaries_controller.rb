@@ -2,12 +2,13 @@ class SalariesController < ApplicationController
   include RenderErrorJson
 
   before_action :set_salary, only: [:show, :update, :destroy]
-  before_action :set_user_companies
-  before_action :validate_salary_id, only: [:show, :update, :destroy]
-  before_action :validate_employee_id, only: [:create, :update]
+  before_action :validate_salary_owner, only: [:show, :update, :destroy]
+  before_action :validate_employee_owner, only: [:create, :update]
 
   def index
-    employees = Employee.joins(:company).where(companies: {id: @user_companies.pluck(:id)})
+    user_companies = Company.user_companies(@current_user.id)
+
+    employees = Employee.joins(:company).where(companies: {id: user_companies.pluck(:id)})
 
     @salaries = Salary.where(employee_id: employees.pluck(:id))
   end
@@ -47,19 +48,17 @@ class SalariesController < ApplicationController
     @salary = Salary.find(params[:id])
   end
 
-  def set_user_companies
-    @user_companies = Company.user_companies(@current_user.id)
+  def validate_salary_owner
+    render_record_not_found unless belongs_to_current_user?(@salary.employee)
   end
 
-  def validate_salary_id
-    render_record_not_found unless user_company?(@salary.employee.company_id)
+  def validate_employee_owner
+    employee = Employee.find(salary_params[:employee_id])
+
+    render_invalid_id_error(:employee_id) unless belongs_to_current_user?(employee)
   end
 
-  def validate_employee_id
-    render_invalid_model_id(:employee_id) unless user_company?(Employee.find(salary_params[:employee_id]).company_id)
-  end
-
-  def user_company?(company_id)
-    @user_companies.pluck(:id).include?(company_id)
+  def belongs_to_current_user?(employee)
+    employee.company.user == @current_user
   end
 end

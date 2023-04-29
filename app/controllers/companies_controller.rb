@@ -45,7 +45,7 @@ class CompaniesController < ApplicationController
   end
 
   def validate_user_id
-    render_invalid_model_id(:user_id) unless @current_user.id == company_params[:user_id].to_i 
+    render_invalid_id_error(:user_id) unless @current_user.id == company_params[:user_id].to_i 
   end
 
   def validate_company_id

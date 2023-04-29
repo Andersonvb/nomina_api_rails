@@ -2,12 +2,13 @@ class PeriodsController < ApplicationController
   include RenderErrorJson
 
   before_action :set_period, only: [:show, :update, :destroy]
-  before_action :set_user_companies
-  before_action :validate_company_id, only: [:create, :update]
-  before_action :validate_period_id, only: [:show, :update, :destroy]
+  before_action :validate_company_owner, only: [:create, :update]
+  before_action :validate_period_owner, only: [:show, :update, :destroy]
 
   def index
-    @periods = Period.joins(:company).where(companies: {id: @user_companies.pluck(:id)})
+    user_companies = Company.user_companies(@current_user.id)
+
+    @periods = Period.joins(:company).where(companies: {id: user_companies.pluck(:id)})
   end
 
   def show; end
@@ -45,19 +46,17 @@ class PeriodsController < ApplicationController
     @period = Period.find(params[:id])
   end
 
-  def set_user_companies
-    @user_companies = Company.user_companies(@current_user.id)
+  def validate_company_owner
+    company = Company.find(period_params[:company_id])
+
+    render_invalid_id_error(:company_id) unless belongs_to_current_user?(company)
   end
 
-  def validate_period_id
-    render_record_not_found unless user_company?(@period.company_id)
+  def validate_period_owner
+    render_record_not_found unless belongs_to_current_user?(@period.company)
   end
 
-  def validate_company_id
-    render_invalid_model_id(:company_id) unless user_company?(period_params[:company_id].to_i)
-  end
-
-  def user_company?(company_id)
-    @user_companies.pluck(:id).include?(company_id)
+  def belongs_to_current_user?(company)
+    company.user == @current_user
   end
 end

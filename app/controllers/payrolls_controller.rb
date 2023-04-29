@@ -4,13 +4,17 @@ class PayrollsController < ApplicationController
   include RenderErrorJson
 
   before_action :set_payroll, only: [:show, :update, :destroy]
-  before_action :set_user_companies
-  before_action :validate_payroll_id, only: [:show, :update, :destroy]
-  before_action :validate_period_id, only: [:create, :update]
-  before_action :validate_employee_id, only: [:create, :update]
+  before_action :set_employee, only: [:create, :update]
+  before_action :set_period, only: [:create, :update]
+  before_action :validate_payroll_owner, only: [:show, :update, :destroy]
+  before_action :validate_period_owner, only: [:create, :update]
+  before_action :validate_employee_owner, only: [:create, :update]
+  before_action :validate_salary_for_period, only: [:create, :update]
 
   def index
-    periods = Period.joins(:company).where(companies: {id: @user_companies.pluck(:id)})
+    user_companies = Company.user_companies(@current_user.id)
+
+    periods = Period.joins(:company).where(companies: {id: user_companies.pluck(:id)})
 
     @payrolls = Payroll.where(period_id: periods.pluck(:id))
   end
@@ -50,26 +54,33 @@ class PayrollsController < ApplicationController
     @payroll = Payroll.find(params[:id])
   end
 
-  def set_user_companies
-    @user_companies = Company.user_companies(@current_user.id)
+  def set_employee
+    @employee = Employee.find(payroll_params[:employee_id])
   end
 
-  def validate_payroll_id
-    render_record_not_found unless user_company?(@payroll.period.company_id.to_i)
+  def set_period
+    @period = Period.find(payroll_params[:period_id])
   end
 
-  def validate_period_id
-    puts "Validate period"
-    render_invalid_model_id(:period_id) unless user_company?(Period.find(payroll_params[:period_id]).company_id.to_i)
+  def validate_period_owner
+    render_invalid_id_error(:period_id) unless belongs_to_current_user?(@period)
   end
 
-  def validate_employee_id
-    render_invalid_model_id(:employee_id) unless user_company?(Employee.find(payroll_params[:employee_id]).company_id.to_i)
+  def validate_employee_owner
+    render_invalid_id_error(:employee_id) unless belongs_to_current_user?(@employee)    
+  end
+
+  def validate_payroll_owner
+    payroll_period = @payroll.period
     
-    render_no_salary_in_period_error unless Employee&.find(payroll_params[:employee_id])&.salary_on_date(Period.find(payroll_params[:period_id]).start_date)
+    render_record_not_found unless belongs_to_current_user?(payroll_period)
   end
 
-  def user_company?(company_id)
-    @user_companies.pluck(:id).include?(company_id)
+  def belongs_to_current_user?(object)
+    object.company.user == @current_user
+  end
+
+  def validate_salary_for_period
+    render_no_salary_in_period_error unless @employee&.salary_on_date(@period.start_date)
   end
 end

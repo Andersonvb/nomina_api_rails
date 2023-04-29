@@ -13,8 +13,8 @@ module RenderErrorJson
     render json: { error: [ message: 'Recurso no encontrado' ] }, status: :not_found
   end
 
-  def render_invalid_model_id(model)
-    render json: { error: [ message: "El #{model.to_s} no pertenece al usuario actual" ]}, status: :unprocessable_entity
+  def render_invalid_id_error(attribute)
+    render json: { error: [ message: "El #{attribute.to_s} no pertenece al usuario actual" ]}, status: :unprocessable_entity
   end
 
   def render_no_salary_in_period_error
