@@ -9,7 +9,7 @@ module WithholdingsAndDeductionsCalculations
 
     subsistence_account = calculate_subsistence_acount(total_social_security_and_parafiscal_base, total_social_security_ratio)
 
-    total_withholdings_and_deductions = deduction_health + deduction_pension + solidarity_fund + subsistence_account
+    total_withholdings_and_deductions = deduction_health + deduction_pension + solidarity_fund + subsistence_account + payroll.deductions
 
     {
       health: deduction_health,

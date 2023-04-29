@@ -18,6 +18,6 @@ module RenderErrorJson
   end
 
   def render_no_salary_in_period_error
-    render json: { error: [ message: 'El empleado no tiene un salario para es periodo suministrado' ] }, status: :unprocessable_entity
+    render json: { error: [ message: 'El empleado no tiene un salario para el periodo suministrado' ] }, status: :unprocessable_entity
   end
 end
