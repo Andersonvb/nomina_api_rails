@@ -29,13 +29,13 @@ class PayrollCreator < ApplicationService
   def create_payroll
     incomes = calculate_incomes(@payroll)
 
-    withholdings_and_deductions = calculate_withholdings_and_deductions(@payroll, incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
+    withholdings_and_deductions = calculate_withholdings_and_deductions(@payroll, incomes)
 
-    social_security = calculate_social_security(incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
+    social_security = calculate_social_security(incomes)
 
-    parafiscal_contributions = calculate_parafiscal_contributions(incomes[:total_social_security_and_parafiscal_base], incomes[:total_social_security_ratio])
+    parafiscal_contributions = calculate_parafiscal_contributions(incomes)
 
-    social_benefits = calculate_social_benefits(incomes[:social_benefits_total_base], incomes[:total_social_security_and_parafiscal_base])
+    social_benefits = calculate_social_benefits(incomes)
 
     totals = calculate_total(incomes, withholdings_and_deductions, social_security, social_benefits, parafiscal_contributions)
 

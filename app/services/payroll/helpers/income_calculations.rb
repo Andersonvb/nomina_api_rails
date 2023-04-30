@@ -1,5 +1,4 @@
 module IncomeCalculations
-
   MINIMUM_SALARY = 1000000
   TRANSPORT_ALLOWANCE = 117172
 

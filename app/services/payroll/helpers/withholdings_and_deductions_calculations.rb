@@ -1,13 +1,13 @@
 module WithholdingsAndDeductionsCalculations
-  def calculate_withholdings_and_deductions(payroll, total_social_security_and_parafiscal_base, total_social_security_ratio)
+  def calculate_withholdings_and_deductions(payroll, incomes)
     base_salary = payroll.employee.salary_on_date(payroll.period.start_date).value
 
-    deduction_health = total_social_security_and_parafiscal_base * 0.04
-    deduction_pension = total_social_security_and_parafiscal_base * 0.04
+    deduction_health = incomes[:total_social_security_and_parafiscal_base] * 0.04
+    deduction_pension = incomes[:total_social_security_and_parafiscal_base] * 0.04
 
-    solidarity_fund = calculate_solidarity_fund(total_social_security_and_parafiscal_base, total_social_security_ratio)
+    solidarity_fund = calculate_solidarity_fund(incomes)
 
-    subsistence_account = calculate_subsistence_acount(total_social_security_and_parafiscal_base, total_social_security_ratio)
+    subsistence_account = calculate_subsistence_acount(incomes)
 
     total_withholdings_and_deductions = deduction_health + deduction_pension + solidarity_fund + subsistence_account + payroll.deductions
 
@@ -22,14 +22,14 @@ module WithholdingsAndDeductionsCalculations
 
   private
 
-  def calculate_solidarity_fund(total_social_security_and_parafiscal_base, total_social_security_ratio)
-    solidarity_fund_percentage = total_social_security_ratio >= 4 ? 0.01 : 0
+  def calculate_solidarity_fund(incomes)
+    solidarity_fund_percentage = incomes[:total_social_security_ratio] >= 4 ? 0.01 : 0
 
-    total_social_security_and_parafiscal_base * solidarity_fund_percentage
+    incomes[:total_social_security_and_parafiscal_base] * solidarity_fund_percentage
   end
 
-  def calculate_subsistence_acount(total_social_security_and_parafiscal_base, total_social_security_ratio)
-    subsistence_account_percentage = case total_social_security_ratio
+  def calculate_subsistence_acount(incomes)
+    subsistence_account_percentage = case incomes[:total_social_security_ratio]
     when 0...16 then 0
     when 16...17 then 0.002
     when 17...18 then 0.004
@@ -38,7 +38,7 @@ module WithholdingsAndDeductionsCalculations
     else 0.01
     end
 
-    subsistence_account_percentage * total_social_security_and_parafiscal_base
+    subsistence_account_percentage * incomes[:total_social_security_and_parafiscal_base]
   end
 
 end

@@ -11,6 +11,7 @@ json.withholdings_and_deductions do
   json.pension payroll.deduction_pension
   json.solidarity_fund payroll.solidarity_fund
   json.subsistence_account payroll.subsistence_account
+  json.deductions payroll.deductions
   json.total payroll.total_withholdings_and_deductions
 end
 
