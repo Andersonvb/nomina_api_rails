@@ -29,6 +29,9 @@ class Salary < ApplicationRecord
   end
 
   def within_employment_period
+    return if start_date.nil?
+    return if end_date.nil?
+
     if start_date < employee.start_date || end_date > employee.end_date
       errors.add(:base, "El salario no puede estar fuera del período de empleo del empleado")
     end
