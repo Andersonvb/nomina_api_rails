@@ -17,12 +17,6 @@ class EmployeeTest < ActiveSupport::TestCase
     assert_equal 'string', Employee.column_for_attribute(:lastname).type.to_s, 'Correct lastname type'
   end
 
-  test 'salary column' do
-    assert Employee.column_names.include?('salary') 
-
-    assert_equal :decimal, Employee.column_for_attribute(:salary).type, 'Correct salary type'
-  end
-
   test 'start_date column' do
     assert Employee.column_names.include?('start_date') 
 
@@ -57,13 +51,6 @@ class EmployeeTest < ActiveSupport::TestCase
 
     refute @employee.valid?
     assert @employee.errors[:lastname].present?, 'error without lastname'
-  end
-
-  test 'invalid without salary' do
-    @employee.salary = nil
-
-    refute @employee.valid?
-    assert @employee.errors[:salary].present?, 'error without salary'
   end
 
   test 'invalid without start_date' do

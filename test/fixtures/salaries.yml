@@ -1,13 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  value: 9.99
-  start_date: 2023-04-27
-  end_date: 2023-04-27
-  employee: one
+salary_one:
+  value: 750000
+  start_date: 2023-01-01
+  end_date: 2023-01-31
+  employee: employee_one
 
-two:
-  value: 9.99
-  start_date: 2023-04-27
-  end_date: 2023-04-27
-  employee: two
+salary_two:
+  value: 750000
+  start_date: 2023-01-01
+  end_date: 2023-01-31
+  employee: employee_two

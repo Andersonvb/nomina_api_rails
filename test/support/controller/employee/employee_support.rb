@@ -15,6 +15,6 @@ module EmployeeSupport
   end
 
   def employee_valid_keys
-    %w[id company name lastname salary start_date end_date]
+    %w[id company name lastname start_date end_date]
   end
 end
