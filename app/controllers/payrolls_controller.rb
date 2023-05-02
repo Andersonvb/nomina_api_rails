@@ -14,9 +14,9 @@ class PayrollsController < ApplicationController
   def index
     user_companies = Company.user_companies(@current_user.id)
 
-    periods = Period.joins(:company).where(companies: {id: user_companies.pluck(:id)})
+    user_periods = Period.joins(:company).where(companies: {id: user_companies.pluck(:id)})
 
-    @payrolls = Payroll.where(period_id: periods.pluck(:id))
+    @payrolls = Payroll.where(period_id: user_periods.pluck(:id))
   end
 
   def show; end
@@ -81,6 +81,6 @@ class PayrollsController < ApplicationController
   end
 
   def validate_salary_for_period
-    render_no_salary_in_period_error unless @employee&.salary_on_date(@period.start_date)
+    render_no_salary_for_period_error unless @employee&.salary_on_date(@period.start_date)
   end
 end
