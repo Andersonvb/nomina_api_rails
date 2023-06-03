@@ -14,7 +14,13 @@ class Employee < ApplicationRecord
   validate :start_date_before_end_date
 
   def salary_on_date(date)
-    salaries.where("start_date <= ? AND end_date >= ?", date, date).order("end_date ASC").first
+    salary_on_date = salaries.where("start_date <= ? AND end_date >= ?", date, date).order("end_date ASC").first
+
+    if salary_on_date.nil?
+      self.salaries.order(:end_date).last
+    else
+      salary_on_date
+    end
   end
 
   private 
